@@ -1,0 +1,10 @@
+id: demo-sk
+name: Demo SK, s.r.o.
+address:
+  street: Obchodná 24
+  postalCode: "811 06"
+  city: Bratislava
+  country: Slovenská republika
+ico: "23456789"
+icDph: SK2123456790
+vatMode: domestic

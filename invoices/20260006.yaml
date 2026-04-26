@@ -1,0 +1,20 @@
+status: issued
+number: "20260006"
+variableSymbol: "20260006"
+client: demo-sk
+dates:
+  issued: "2026-03-31"
+  delivered: "2026-03-31"
+  due: "2026-04-25"
+payment:
+  method: bank_transfer
+items:
+  - name: Vývoj softvéru
+    quantity: "6"
+    unitPrice: "480"
+    vatRate: 23
+  - name: Technická podpora
+    description: Mesačný paušál
+    quantity: "5"
+    unitPrice: "24"
+    vatRate: 23

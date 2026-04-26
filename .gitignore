@@ -1,0 +1,11 @@
+.DS_Store
+node_modules/
+dist/
+out/
+drafts/
+.invoice-generator.lock/
+.env
+.env.*
+*.pdf
+*.log
+npm-debug.log*

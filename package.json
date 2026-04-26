@@ -1,0 +1,48 @@
+{
+  "name": "invoice-generator",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Agent-friendly CLI for Slovak invoices.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/patrikmojzis/invoice-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/patrikmojzis/invoice-cli/issues"
+  },
+  "homepage": "https://github.com/patrikmojzis/invoice-cli#readme",
+  "bin": {
+    "invoice": "./dist/invoice.cjs"
+  },
+  "scripts": {
+    "build": "tsc --noEmit && esbuild src/cli.ts --bundle --platform=node --format=cjs --target=node20 --outfile=dist/invoice.cjs --banner:js='#!/usr/bin/env node' && chmod +x dist/invoice.cjs && mkdir -p dist/fonts && cp assets/fonts/*.ttf dist/fonts/",
+    "build:bin": "npm run build && pkg package.json --targets node20-macos-arm64 --output dist/invoice --fallback-to-source",
+    "check": "tsc --noEmit",
+    "smoke": "npm run build && node dist/invoice.cjs validate invoices/20260006.yaml && node dist/invoice.cjs render invoices/20260006.yaml --output out/Faktura_20260006.generated.pdf"
+  },
+  "dependencies": {
+    "bysquare": "^4.0.0",
+    "commander": "^14.0.3",
+    "decimal.js": "^10.6.0",
+    "pdfmake": "^0.3.7",
+    "qrcode": "^1.5.4",
+    "yaml": "^2.8.3",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "@types/qrcode": "^1.5.6",
+    "@yao-pkg/pkg": "^6.19.0",
+    "esbuild": "^0.28.0",
+    "typescript": "^6.0.3"
+  },
+  "pkg": {
+    "fallbackToSource": true,
+    "assets": [
+      "dist/fonts/*.ttf"
+    ],
+    "scripts": [
+      "dist/invoice.cjs"
+    ]
+  }
+}

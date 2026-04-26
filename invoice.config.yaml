@@ -1,0 +1,27 @@
+version: 1
+seller:
+  name: Demo Dodávateľ, s.r.o.
+  address:
+    street: Hlavná 1
+    postalCode: "811 01"
+    city: Bratislava
+    country: Slovenská republika
+  ico: "12345678"
+  dic: "2123456789"
+  icDph: SK2123456789
+bank:
+  iban: SK71 1100 0000 0012 3456 7890
+  swift: TATRSKBX
+  currency: EUR
+invoice:
+  nextNumber: "20260007"
+  defaultDueDays: 14
+  outputDir: out
+  filenamePattern: Faktura_{number}.pdf
+  variableSymbolFromNumber: true
+tax:
+  defaultVatRate: 23
+  reverseChargeText: REVERSE CHARGE - Prenesenie daňovej povinnosti podľa čl. 44 a 196 smernice 2006/112/ES
+pdf:
+  language: sk
+  showPayBySquare: true

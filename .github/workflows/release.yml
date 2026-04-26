@@ -1,0 +1,37 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  macos-arm64:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build:bin
+
+      - name: Package binary
+        run: |
+          mkdir -p release
+          tar -czf release/invoice-macos-arm64.tar.gz -C dist invoice
+          shasum -a 256 release/invoice-macos-arm64.tar.gz > release/invoice-macos-arm64.tar.gz.sha256
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          overwrite_files: true
+          files: |
+            release/invoice-macos-arm64.tar.gz
+            release/invoice-macos-arm64.tar.gz.sha256

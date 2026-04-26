@@ -1,0 +1,10 @@
+id: demo-cz
+name: Demo CZ, s.r.o.
+address:
+  street: Dlouhá 12
+  postalCode: "150 00"
+  city: Praha
+  country: Česká republika
+ico: "87654321"
+dic: CZ87654321
+vatMode: reverse-charge

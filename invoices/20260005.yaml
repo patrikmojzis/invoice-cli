@@ -1,0 +1,15 @@
+status: issued
+number: "20260005"
+variableSymbol: "20260005"
+client: demo-cz
+dates:
+  issued: "2026-04-20"
+  delivered: "2026-04-20"
+  due: "2026-04-25"
+payment:
+  method: bank_transfer
+items:
+  - name: Konzultačné služby
+    quantity: "4"
+    unitPrice: "320"
+    vatRate: reverse

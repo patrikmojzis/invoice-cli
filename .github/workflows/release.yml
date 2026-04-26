@@ -9,8 +9,20 @@ permissions:
   contents: write
 
 jobs:
-  macos-arm64:
-    runs-on: macos-latest
+  binary:
+    name: ${{ matrix.asset }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            target: node20-macos-arm64
+            asset: invoice-macos-arm64
+          - os: ubuntu-latest
+            target: node20-linux-x64
+            asset: invoice-linux-x64
+
     steps:
       - uses: actions/checkout@v4
 
@@ -20,18 +32,19 @@ jobs:
           cache: npm
 
       - run: npm ci
-      - run: npm run build:bin
+      - run: npm run build
+      - run: npx pkg package.json --targets ${{ matrix.target }} --output dist/invoice --fallback-to-source
 
       - name: Package binary
         run: |
           mkdir -p release
-          tar -czf release/invoice-macos-arm64.tar.gz -C dist invoice
-          shasum -a 256 release/invoice-macos-arm64.tar.gz > release/invoice-macos-arm64.tar.gz.sha256
+          tar -czf release/${{ matrix.asset }}.tar.gz -C dist invoice
+          shasum -a 256 release/${{ matrix.asset }}.tar.gz > release/${{ matrix.asset }}.tar.gz.sha256
 
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
         with:
           overwrite_files: true
           files: |
-            release/invoice-macos-arm64.tar.gz
-            release/invoice-macos-arm64.tar.gz.sha256
+            release/${{ matrix.asset }}.tar.gz
+            release/${{ matrix.asset }}.tar.gz.sha256

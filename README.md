@@ -205,10 +205,23 @@ npm run build:bin
 ./dist/invoice invoices list
 ```
 
-Publikovaný release obsahuje `invoice-macos-arm64.tar.gz`. Po stiahnutí:
+Lokálny Linux build:
 
 ```bash
-tar -xzf invoice-macos-arm64.tar.gz
+npm run build:bin:linux
+```
+
+Publikovaný release obsahuje:
+
+```text
+invoice-macos-arm64.tar.gz
+invoice-linux-x64.tar.gz
+```
+
+Po stiahnutí:
+
+```bash
+tar -xzf invoice-linux-x64.tar.gz
 chmod +x invoice
 ./invoice --help
 ```

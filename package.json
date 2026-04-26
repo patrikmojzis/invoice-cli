@@ -16,7 +16,9 @@
   },
   "scripts": {
     "build": "tsc --noEmit && esbuild src/cli.ts --bundle --platform=node --format=cjs --target=node20 --outfile=dist/invoice.cjs --banner:js='#!/usr/bin/env node' && chmod +x dist/invoice.cjs && mkdir -p dist/fonts && cp assets/fonts/*.ttf dist/fonts/",
-    "build:bin": "npm run build && pkg package.json --targets node20-macos-arm64 --output dist/invoice --fallback-to-source",
+    "build:bin": "npm run build:bin:macos",
+    "build:bin:macos": "npm run build && pkg package.json --targets node20-macos-arm64 --output dist/invoice --fallback-to-source",
+    "build:bin:linux": "npm run build && pkg package.json --targets node20-linux-x64 --output dist/invoice-linux-x64 --fallback-to-source",
     "check": "tsc --noEmit",
     "smoke": "npm run build && node dist/invoice.cjs validate invoices/20260006.yaml && node dist/invoice.cjs render invoices/20260006.yaml --output out/Faktura_20260006.generated.pdf"
   },

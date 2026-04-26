@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { calculateInvoice } from "./calc";
 import { addDays, todayLocalIso } from "./dates";
-import { formatCurrency } from "./money";
+import { formatCurrency, type VatBucket } from "./money";
 import { resolveWorkspace, slugify } from "./paths";
 import { renderInvoicePdf } from "./pdf";
 import type { Invoice } from "./schema";
@@ -24,6 +24,24 @@ import { parseItemSpec } from "./itemSpec";
 import { readYamlFile } from "./yaml";
 
 type RootOptions = { root?: string };
+type ExportFormat = "csv" | "json";
+type ExportRow = {
+  source: string;
+  number: string;
+  status: string;
+  clientId: string;
+  clientName: string;
+  issued: string;
+  delivered: string;
+  due: string;
+  currency: string;
+  vatKind: string;
+  vatRate: string;
+  vatLabel: string;
+  net: string;
+  vat: string;
+  gross: string;
+};
 
 function paths(options: RootOptions) {
   return resolveWorkspace(options.root);
@@ -64,6 +82,54 @@ function variableSymbolFromInvoiceNumber(number: string): string {
     throw new Error(`Cannot derive variable symbol from invoice number "${number}". Use numeric nextNumber or set variableSymbolFromNumber: false.`);
   }
   return symbol;
+}
+
+function normalizeExportFormat(format: string | undefined): ExportFormat {
+  if (!format) return "csv";
+  if (format === "csv" || format === "json") return format;
+  throw new Error("Export format must be csv or json.");
+}
+
+function assertPeriod(period: string | undefined): void {
+  if (period && !/^\d{4}-(0[1-9]|1[0-2])$/.test(period)) {
+    throw new Error("Period must use YYYY-MM format.");
+  }
+}
+
+function amountText(value: { toFixed(decimalPlaces: number): string }): string {
+  return value.toFixed(2);
+}
+
+function vatRateText(bucket: VatBucket): string {
+  return bucket.vatKind === "domestic" ? bucket.rate.toString() : "0";
+}
+
+function csvCell(value: string): string {
+  return /[",\n\r]/.test(value) ? `"${value.replaceAll("\"", "\"\"")}"` : value;
+}
+
+function renderCsv(rows: ExportRow[]): string {
+  const headers: Array<keyof ExportRow> = [
+    "source",
+    "number",
+    "status",
+    "clientId",
+    "clientName",
+    "issued",
+    "delivered",
+    "due",
+    "currency",
+    "vatKind",
+    "vatRate",
+    "vatLabel",
+    "net",
+    "vat",
+    "gross",
+  ];
+  return [
+    headers.join(","),
+    ...rows.map((row) => headers.map((header) => csvCell(row[header])).join(",")),
+  ].join("\n");
 }
 
 async function withWorkspaceLock<T>(root: ReturnType<typeof resolveWorkspace>, run: () => Promise<T>): Promise<T> {
@@ -179,6 +245,40 @@ export function invoicesListCommand(options: RootOptions & { client?: string; dr
     { header: "total", value: (row) => row.total },
     { header: "file", value: (row) => row.file },
   ]));
+}
+
+export function exportCommand(options: RootOptions & { period?: string; format?: string; client?: string; drafts?: boolean }): void {
+  const root = paths(options);
+  const config = loadConfig(root);
+  const format = normalizeExportFormat(options.format);
+  assertPeriod(options.period);
+
+  const rows = listInvoices(root, Boolean(options.drafts))
+    .filter(({ invoice }) => !options.client || invoice.client === options.client)
+    .filter(({ invoice }) => !options.period || invoice.dates.issued.startsWith(`${options.period}-`))
+    .flatMap(({ filePath, invoice }) => {
+      const client = loadClient(root, invoice.client);
+      const totals = calculateInvoice(invoice, client, config);
+      return totals.buckets.map((bucket) => ({
+        source: path.relative(root.root, filePath),
+        number: invoice.number ?? "",
+        status: invoice.status,
+        clientId: client.id,
+        clientName: client.name,
+        issued: invoice.dates.issued,
+        delivered: invoice.dates.delivered,
+        due: invoice.dates.due,
+        currency: config.bank.currency,
+        vatKind: bucket.vatKind,
+        vatRate: vatRateText(bucket),
+        vatLabel: bucket.label,
+        net: amountText(bucket.net),
+        vat: amountText(bucket.vat),
+        gross: amountText(bucket.gross),
+      }));
+    });
+
+  console.log(format === "json" ? JSON.stringify(rows, null, 2) : renderCsv(rows));
 }
 
 export function nextNumberCommand(options: RootOptions): void {

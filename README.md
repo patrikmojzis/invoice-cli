@@ -131,6 +131,29 @@ pdf:
   showPayBySquare: false
 ```
 
+## Export pre účtovníctvo
+
+CSV export po mesiacoch:
+
+```bash
+invoice export --period 2026-04 --format csv
+```
+
+JSON:
+
+```bash
+invoice export --period 2026-04 --format json
+```
+
+Export vracia jeden riadok na faktúru a DPH bucket. Pre bežnú faktúru je to jeden riadok; pri viacerých sadzbách DPH ich bude viac. Stĺpce obsahujú číslo faktúry, klienta, dátumy, menu, typ DPH, sadzbu, základ, DPH a sumu spolu. `--period` filtruje podľa dátumu vystavenia.
+
+Užitočné filtre:
+
+```bash
+invoice export --period 2026-04 --client demo-sk --format csv
+invoice export --period 2026-04 --drafts --format json
+```
+
 ## Vystavenie faktúry
 
 ```bash
@@ -184,7 +207,7 @@ seller:              dodávateľ na faktúre
 bank:
   iban:              validovaný IBAN
   swift:             validovaný BIC/SWIFT
-  currency: EUR      momentálne iba EUR
+  currency: EUR      momentálne iba EUR; PAY by square je EUR-only
 invoice:
   nextNumber:        najbližšie číslo faktúry
   defaultDueDays:    splatnosť pri draftoch bez --due

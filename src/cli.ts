@@ -6,6 +6,7 @@ import {
   clientsSearchCommand,
   configShowCommand,
   draftCreateCommand,
+  exportCommand,
   initCommand,
   invoicesListCommand,
   issueCommand,
@@ -45,6 +46,15 @@ invoices
   .action((options) => invoicesListCommand({ ...program.opts(), ...options }));
 
 program.command("next-number").action(() => nextNumberCommand(program.opts()));
+
+program
+  .command("export")
+  .description("Export invoice VAT buckets as CSV or JSON.")
+  .option("--period <month>", "issued month YYYY-MM")
+  .option("--format <format>", "csv or json", "csv")
+  .option("--client <id>", "filter by client")
+  .option("--drafts", "include drafts")
+  .action((options) => exportCommand({ ...program.opts(), ...options }));
 
 const items = program.command("items").description("Item history commands.");
 items

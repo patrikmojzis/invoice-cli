@@ -145,7 +145,25 @@ JSON:
 invoice export --period 2026-04 --format json
 ```
 
-Export vracia jeden riadok na faktúru a DPH bucket. Pre bežnú faktúru je to jeden riadok; pri viacerých sadzbách DPH ich bude viac. Stĺpce obsahujú číslo faktúry, klienta, dátumy, menu, typ DPH, sadzbu, základ, DPH a sumu spolu. `--period` filtruje podľa dátumu vystavenia.
+Export vracia jeden riadok na faktúru a DPH bucket. Pre bežnú faktúru je to jeden riadok; pri viacerých sadzbách DPH ich bude viac. `--period` filtruje podľa dátumu vystavenia.
+
+Dôležité stĺpce pre DPH/KV integrácie:
+
+```text
+clientIco
+clientDic
+clientIcDph
+clientVatMode
+taxableSupplyDate
+vatKind
+vatTreatment
+vatRate
+net
+vat
+gross
+```
+
+`taxableSupplyDate` je zatiaľ alias na `delivered`. `vatTreatment` je stabilnejšie pole pre mapping než ľudský `vatLabel`; hodnoty sú `reverse_charge`, `exempt`, `domestic_zero`, alebo `domestic_taxable`.
 
 Užitočné filtre:
 

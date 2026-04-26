@@ -31,11 +31,17 @@ type ExportRow = {
   status: string;
   clientId: string;
   clientName: string;
+  clientIco: string;
+  clientDic: string;
+  clientIcDph: string;
+  clientVatMode: string;
   issued: string;
   delivered: string;
+  taxableSupplyDate: string;
   due: string;
   currency: string;
   vatKind: string;
+  vatTreatment: string;
   vatRate: string;
   vatLabel: string;
   net: string;
@@ -104,6 +110,19 @@ function vatRateText(bucket: VatBucket): string {
   return bucket.vatKind === "domestic" ? bucket.rate.toString() : "0";
 }
 
+function vatTreatment(bucket: VatBucket): string {
+  if (bucket.vatKind === "reverse") return "reverse_charge";
+  if (bucket.vatKind === "exempt") return "exempt";
+  return bucket.rate.isZero() ? "domestic_zero" : "domestic_taxable";
+}
+
+function exportVatLabel(bucket: VatBucket): string {
+  if (bucket.vatKind === "reverse") return "Reverse charge";
+  if (bucket.vatKind === "exempt") return "Exempt";
+  if (bucket.rate.isZero()) return "Domestic 0%";
+  return `${bucket.rate.toString()}%`;
+}
+
 function csvCell(value: string): string {
   return /[",\n\r]/.test(value) ? `"${value.replaceAll("\"", "\"\"")}"` : value;
 }
@@ -115,11 +134,17 @@ function renderCsv(rows: ExportRow[]): string {
     "status",
     "clientId",
     "clientName",
+    "clientIco",
+    "clientDic",
+    "clientIcDph",
+    "clientVatMode",
     "issued",
     "delivered",
+    "taxableSupplyDate",
     "due",
     "currency",
     "vatKind",
+    "vatTreatment",
     "vatRate",
     "vatLabel",
     "net",
@@ -265,13 +290,19 @@ export function exportCommand(options: RootOptions & { period?: string; format?:
         status: invoice.status,
         clientId: client.id,
         clientName: client.name,
+        clientIco: client.ico ?? "",
+        clientDic: client.dic ?? "",
+        clientIcDph: client.icDph ?? "",
+        clientVatMode: client.vatMode,
         issued: invoice.dates.issued,
         delivered: invoice.dates.delivered,
+        taxableSupplyDate: invoice.dates.delivered,
         due: invoice.dates.due,
         currency: config.bank.currency,
         vatKind: bucket.vatKind,
+        vatTreatment: vatTreatment(bucket),
         vatRate: vatRateText(bucket),
-        vatLabel: bucket.label,
+        vatLabel: exportVatLabel(bucket),
         net: amountText(bucket.net),
         vat: amountText(bucket.vat),
         gross: amountText(bucket.gross),

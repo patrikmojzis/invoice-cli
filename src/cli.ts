@@ -21,7 +21,7 @@ const program = new Command();
 program
   .name("invoice")
   .description("Agent-friendly invoice CLI.")
-  .version("0.1.0")
+  .version("0.1.1")
   .option("--root <dir>", "workspace root", process.cwd());
 
 program
